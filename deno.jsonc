@@ -1,5 +1,5 @@
 {
-  "name": "@shougo/ddt-ui-ff",
+  "name": "@shougo/ddt-ui-terminal",
   "version": "0.0.0",
   "exports": {
     ".": "./denops/@ddt-uis/terminal.ts"
