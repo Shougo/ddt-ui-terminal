@@ -365,7 +365,7 @@ export class Ui extends BaseUi<Params> {
 
     await vars.g.set(
       denops,
-      "ddt_ui_terminal_last_winid",
+      "ddt_ui_last_winid",
       await fn.win_getid(denops),
     );
   }
