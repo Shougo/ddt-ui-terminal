@@ -1,12 +1,12 @@
 {
-  "name": "@shougo/ddu-ui-ff",
+  "name": "@shougo/ddt-ui-ff",
   "version": "0.0.0",
   "exports": {
-    ".": "./denops/@ddu-uis/ff.ts"
+    ".": "./denops/@ddt-uis/terminal.ts"
   },
   "publish": {
     "include": [
-      "denops/@ddu-uis/**/*.ts"
+      "denops/@ddt-uis/**/*.ts"
     ]
   },
   "imports": {
