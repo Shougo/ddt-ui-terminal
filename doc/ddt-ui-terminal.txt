@@ -171,10 +171,13 @@ EXAMPLES                                            *ddt-ui-terminal-examples*
 	nnoremap <buffer> <CR>
 	      \ <Cmd>call ddt#ui#do_action('executeLine')<CR>
 	
-	autocmd MyAutoCmd DirChanged <buffer>
-	      \ call ddt#ui#do_action('cd', #{
-	      \   directory: v:event->get('cwd', getcwd()),
-	      \ })
+	augroup ddt-ui-terminal
+	  autocmd!
+	  autocmd MyAutoCmd DirChanged <buffer>
+	        \ call ddt#ui#do_action('cd', #{
+	        \   directory: v:event->get('cwd', getcwd()),
+	        \ })
+	augroup END
 	
 	if exists('b:ddt_terminal_directory')
 	  execute 'tcd' b:ddt_terminal_directory->fnameescape()

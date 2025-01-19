@@ -352,7 +352,9 @@ export class Ui extends BaseUi<Params> {
       await fn.setbufvar(denops, this.#bufNr, "&swapfile", 0);
     });
 
-    // NOTE: setfiletype must be the last
+    // NOTE: "setfiletype" must be the last
+    // NOTE: Execute "setfiletype" twice to call after ftplugin in Vim.
+    await fn.setbufvar(denops, this.#bufNr, "&filetype", "ddt-terminal");
     await fn.setbufvar(denops, this.#bufNr, "&filetype", "ddt-terminal");
   }
 
