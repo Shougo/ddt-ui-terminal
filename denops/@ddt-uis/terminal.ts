@@ -18,16 +18,10 @@ import {
 export type Params = {
   command: string[];
   cwd: string;
-  edit: boolean;
-  editFiletype: string;
-  editWinHeight: number;
-  externalHistoryPath: string;
   extraTermOptions: Record<string, unknown>;
   floatingBorder: string;
-  internalHistoryPath: string;
   nvimServer: string;
   promptPattern: string;
-  shellHistoryMax: number;
   split: string;
   startInsert: boolean;
   toggle: boolean;
@@ -243,16 +237,10 @@ export class Ui extends BaseUi<Params> {
     return {
       command: [],
       cwd: "",
-      edit: false,
-      editFiletype: "",
-      editWinHeight: 1,
-      externalHistoryPath: "",
       extraTermOptions: {},
       floatingBorder: "",
-      internalHistoryPath: "",
       nvimServer: "",
       promptPattern: "",
-      shellHistoryMax: 500,
       split: "",
       startInsert: false,
       toggle: false,
