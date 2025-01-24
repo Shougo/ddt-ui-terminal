@@ -154,6 +154,7 @@ winWidth	number
 EXAMPLES                                            *ddt-ui-terminal-examples*
 >vim
 	call ddt#custom#patch_global(#{
+	      \   ui: 'terminal',
 	      \   uiParams: #{
 	      \     terminal: #{
 	      \       command: ['zsh'],

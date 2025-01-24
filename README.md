@@ -17,5 +17,11 @@ https://github.com/Shougo/ddt.vim
 ```vim
 call ddt#custom#patch_global(#{
     \   ui: 'terminal',
+    \   uiParams: #{
+    \     terminal: #{
+    \       command: ['zsh'],
+    \       promptPattern: has('win32') ? '\f\+>' : '\w*% \?',
+    \     },
+    \   },
     \ })
 ```
