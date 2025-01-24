@@ -4,6 +4,7 @@ import type {
   UiOptions,
 } from "jsr:@shougo/ddt-vim@~1.0.0/types";
 import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.0.0/ui";
+import { printError } from "jsr:@shougo/ddt-vim@~1.0.0/utils";
 
 import type { Denops } from "jsr:@denops/std@~7.4.0";
 import * as fn from "jsr:@denops/std@~7.4.0/function";
@@ -71,7 +72,7 @@ export class Ui extends BaseUi<Params> {
     if (await fn.bufexists(args.denops, this.#bufNr)) {
       await this.#switchBuffer(args.denops, args.uiParams, cwd);
     } else {
-      await this.#newBuffer(args.denops, args.options, args.uiParams);
+      await this.#newBuffer(args.denops, args.uiParams);
     }
 
     await this.#initVariables(args.denops, args.options.name, cwd);
@@ -263,7 +264,12 @@ export class Ui extends BaseUi<Params> {
     }
   }
 
-  async #newBuffer(denops: Denops, options: DdtOptions, params: Params) {
+  async #newBuffer(denops: Denops, params: Params) {
+    if (params.command.length === 0) {
+      printError(denops, "command param must be set.");
+      return;
+    }
+
     // Set $EDITOR
     await denops.call("ddt#ui#terminal#_set_editor", params.nvimServer);
 
@@ -302,7 +308,7 @@ export class Ui extends BaseUi<Params> {
       await denops.cmd("startinsert");
     }
 
-    await this.#initOptions(denops, options);
+    await this.#initOptions(denops);
   }
 
   async #winId(denops: Denops): Promise<number> {
@@ -310,14 +316,12 @@ export class Ui extends BaseUi<Params> {
     return winIds.length > 0 ? winIds[0] : -1;
   }
 
-  async #initOptions(denops: Denops, options: DdtOptions) {
+  async #initOptions(denops: Denops) {
     const winid = await this.#winId(denops);
     const existsSmoothScroll = await fn.exists(denops, "+smoothscroll");
     const existsStatusColumn = await fn.exists(denops, "+statuscolumn");
 
     await batch(denops, async (denops: Denops) => {
-      await fn.setbufvar(denops, this.#bufNr, "ddt_ui_name", options.name);
-
       // Set options
       await fn.setwinvar(denops, winid, "&list", 0);
       await fn.setwinvar(denops, winid, "&foldenable", 0);
@@ -413,24 +417,23 @@ async function searchPrompt(
   promptPattern: string,
   flags: string,
 ) {
-  const currentCol = await fn.col(denops, ".");
   await fn.cursor(denops, 0, 1);
   const pattern = `^\\%(${promptPattern}\\m\\).\\?`;
   const pos = await fn.searchpos(denops, pattern, flags) as number[];
-  if (pos[0] != 0) {
-    const col = await fn.matchend(
-      denops,
-      await fn.getline(denops, pos[0]),
-      pattern,
-    );
-    await fn.cursor(
-      denops,
-      pos[0],
-      col,
-    );
-  } else {
-    await fn.cursor(denops, 0, currentCol);
+  if (pos[0] == 0) {
+    return;
   }
+
+  const col = await fn.matchend(
+    denops,
+    await fn.getline(denops, pos[0]),
+    pattern,
+  );
+  await fn.cursor(
+    denops,
+    pos[0],
+    col,
+  );
 }
 
 async function getCommandLine(
