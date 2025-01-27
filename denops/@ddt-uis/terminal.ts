@@ -21,7 +21,6 @@ export type Params = {
   cwd: string;
   extraTermOptions: Record<string, unknown>;
   floatingBorder: string;
-  nvimServer: string;
   promptPattern: string;
   split: string;
   startInsert: boolean;
@@ -240,7 +239,6 @@ export class Ui extends BaseUi<Params> {
       cwd: "",
       extraTermOptions: {},
       floatingBorder: "",
-      nvimServer: "",
       promptPattern: "",
       split: "",
       startInsert: false,
@@ -269,9 +267,6 @@ export class Ui extends BaseUi<Params> {
       printError(denops, "command param must be set.");
       return;
     }
-
-    // Set $EDITOR
-    await denops.call("ddt#ui#terminal#_set_editor", params.nvimServer);
 
     await denops.call("ddt#ui#terminal#_split", params);
 
