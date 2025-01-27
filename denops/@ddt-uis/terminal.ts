@@ -483,7 +483,7 @@ async function termRedraw(
 
   // Goto insert mode
   await denops.cmd("redraw");
-  await denops.cmd("normal! A");
+  await denops.cmd("silent! normal! A");
 
   // Go back to normal mode
   await stopInsert(denops);
