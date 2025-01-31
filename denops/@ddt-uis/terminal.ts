@@ -2,9 +2,9 @@ import type {
   BaseParams,
   DdtOptions,
   UiOptions,
-} from "jsr:@shougo/ddt-vim@~1.0.0/types";
-import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.0.0/ui";
-import { printError } from "jsr:@shougo/ddt-vim@~1.0.0/utils";
+} from "jsr:@shougo/ddt-vim@~1.1.0/types";
+import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.1.0/ui";
+import { safeStat, printError } from "jsr:@shougo/ddt-vim@~1.1.0/utils";
 
 import type { Denops } from "jsr:@denops/std@~7.4.0";
 import * as fn from "jsr:@denops/std@~7.4.0/function";
@@ -141,6 +141,23 @@ export class Ui extends BaseUi<Params> {
           this.#bufNr,
           this.#jobid,
           rawString`${commandLine}\<CR>`,
+        );
+      },
+    },
+    insert: {
+      description: "Insert the string to terminal",
+      callback: async (args: {
+        denops: Denops;
+        options: DdtOptions;
+        actionParams: BaseParams;
+      }) => {
+        const params = args.actionParams as SendParams;
+
+        await jobSendString(
+          args.denops,
+          this.#bufNr,
+          this.#jobid,
+          rawString`${params.str}`,
         );
       },
     },
@@ -485,23 +502,3 @@ async function termRedraw(
 
   await fn.win_gotoid(denops, prevWinId);
 }
-
-const safeStat = async (path: string): Promise<Deno.FileInfo | null> => {
-  // NOTE: Deno.stat() may be failed
-  try {
-    const stat = await Deno.lstat(path);
-    if (stat.isSymlink) {
-      try {
-        const stat = await Deno.stat(path);
-        stat.isSymlink = true;
-        return stat;
-      } catch (_: unknown) {
-        // Ignore stat exception
-      }
-    }
-    return stat;
-  } catch (_: unknown) {
-    // Ignore stat exception
-  }
-  return null;
-};
