@@ -8,7 +8,6 @@ CONTENTS                                            *ddt-ui-terminal-contents*
 Introduction		|ddt-ui-terminal-introduction|
 Install			|ddt-ui-terminal-install|
 Interface		|ddt-ui-terminal-interface|
-  Functions		  |ddt-ui-terminal-functions|
   Actions		  |ddt-ui-terminal-actions|
   Params		  |ddt-ui-terminal-params|
 Examples		|ddt-ui-terminal-examples|
@@ -34,9 +33,6 @@ https://github.com/vim-denops/denops.vim
 ==============================================================================
 INTERFACE                                          *ddt-ui-terminal-interface*
 
-
-------------------------------------------------------------------------------
-FUNCTIONS                                          *ddt-ui-terminal-functions*
 
 ------------------------------------------------------------------------------
 ACTIONS                                              *ddt-ui-terminal-actions*
