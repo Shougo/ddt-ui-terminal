@@ -231,6 +231,20 @@ export class Ui extends BaseUi<Params> {
         );
       },
     },
+    redraw: {
+      description: "Redraw the UI",
+      callback: async (args: {
+        denops: Denops;
+        options: DdtOptions;
+        uiParams: Params;
+      }) => {
+        if (await fn.bufnr(args.denops, "%") != this.#bufNr) {
+          return;
+        }
+
+        await termRedraw(args.denops, this.#bufNr);
+      },
+    },
     send: {
       description: "Send the string to terminal",
       callback: async (args: {
