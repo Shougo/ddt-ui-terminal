@@ -6,15 +6,15 @@ import type {
 import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.1.0/ui";
 import { printError, safeStat } from "jsr:@shougo/ddt-vim@~1.1.0/utils";
 
-import type { Denops } from "jsr:@denops/std@~7.4.0";
-import * as fn from "jsr:@denops/std@~7.4.0/function";
-import * as vars from "jsr:@denops/std@~7.4.0/variable";
-import { batch } from "jsr:@denops/std@~7.4.0/batch";
+import type { Denops } from "jsr:@denops/std@~7.5.0";
+import * as fn from "jsr:@denops/std@~7.5.0/function";
+import * as vars from "jsr:@denops/std@~7.5.0/variable";
+import { batch } from "jsr:@denops/std@~7.5.0/batch";
 import {
   type RawString,
   rawString,
   useEval,
-} from "jsr:@denops/std@~7.4.0/eval";
+} from "jsr:@denops/std@~7.5.0/eval";
 
 export type Params = {
   command: string[];
