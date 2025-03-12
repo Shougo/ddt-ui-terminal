@@ -9,6 +9,7 @@ import { printError, safeStat } from "jsr:@shougo/ddt-vim@~1.1.0/utils";
 import type { Denops } from "jsr:@denops/std@~7.5.0";
 import * as fn from "jsr:@denops/std@~7.5.0/function";
 import * as vars from "jsr:@denops/std@~7.5.0/variable";
+import * as nvimOp from "jsr:@denops/std@~7.5.0/option/nvim";
 import { batch } from "jsr:@denops/std@~7.5.0/batch";
 import {
   type RawString,
@@ -311,14 +312,17 @@ export class Ui extends BaseUi<Params> {
           ...params.extraTermOptions,
           term: true,
         });
+
+        this.#jobid = await nvimOp.channel.getLocal(denops);
+        this.#pid = await denops.call("jobpid", this.#jobid) as number;
       } else {
         await denops.call("termopen", params.command, {
           ...params.extraTermOptions,
         });
-      }
 
-      this.#jobid = await vars.b.get(denops, "terminal_job_id");
-      this.#pid = await vars.b.get(denops, "terminal_job_pid");
+        this.#jobid = await vars.b.get(denops, "terminal_job_id");
+        this.#pid = await vars.b.get(denops, "terminal_job_pid");
+      }
     } else {
       this.#pid = await denops.call("term_start", params.command, {
         ...params.extraTermOptions,
