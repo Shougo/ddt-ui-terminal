@@ -95,8 +95,7 @@ cwd		string
 
                                       *ddt-ui-terminal-param-extraTermOptions*
 extraTermOptions Record<string, unknown>
-		Set the extra options for gvim terminal. See |term_start()|.
-		NOTE: It is available in Vim only.
+		Set the extra options for terminal API.
 
 		Default: {}
 

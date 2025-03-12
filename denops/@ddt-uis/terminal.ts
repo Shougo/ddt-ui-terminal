@@ -305,11 +305,17 @@ export class Ui extends BaseUi<Params> {
       // NOTE: ":terminal" replaces current buffer
       await denops.cmd("enew");
 
-      // NOTE: termopen() is deprecated.
-      await denops.call("jobstart", params.command, {
-        ...params.extraTermOptions,
-        term: true,
-      });
+      // NOTE: termopen() is deprecated in Neovim 0.11+.
+      if (await fn.has(denops, "nvim-0.11")) {
+        await denops.call("jobstart", params.command, {
+          ...params.extraTermOptions,
+          term: true,
+        });
+      } else {
+        await denops.call("termopen", params.command, {
+          ...params.extraTermOptions,
+        });
+      }
 
       this.#jobid = await vars.b.get(denops, "terminal_job_id");
       this.#pid = await vars.b.get(denops, "terminal_job_pid");
