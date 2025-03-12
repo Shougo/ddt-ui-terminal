@@ -10,6 +10,7 @@ Install			|ddt-ui-terminal-install|
 Interface		|ddt-ui-terminal-interface|
   Actions		  |ddt-ui-terminal-actions|
   Params		  |ddt-ui-terminal-params|
+  Variables		  |ddt-ui-terminal-variables|
 Examples		|ddt-ui-terminal-examples|
 FAQ			|ddt-ui-terminal-faq|
 Compatibility		|ddt-ui-terminal-compatibility|
@@ -155,6 +156,14 @@ winWidth	number
 		of the floating window.
 
 		Default: 80
+
+------------------------------------------------------------------------------
+VARIABLES                                          *ddt-ui-terminal-variables*
+
+                           *ddt-ui-terminal-variable-t:ddt_ui_shell_last_name*
+t:ddt_ui_terminal_last_name (string)
+		The last UI |ddt-option-name| in current tab.
+
 
 ==============================================================================
 EXAMPLES                                            *ddt-ui-terminal-examples*
