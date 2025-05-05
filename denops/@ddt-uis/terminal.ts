@@ -261,6 +261,8 @@ export class Ui extends BaseUi<Params> {
           this.#jobid,
           rawString`${params.str}\<CR>`,
         );
+
+        await termRedraw(args.denops, this.#bufNr);
       },
     },
   };
