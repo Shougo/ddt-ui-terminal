@@ -2,20 +2,20 @@ import type {
   BaseParams,
   DdtOptions,
   UiOptions,
-} from "jsr:@shougo/ddt-vim@~1.1.0/types";
-import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.1.0/ui";
-import { printError, safeStat } from "jsr:@shougo/ddt-vim@~1.1.0/utils";
+} from "jsr:@shougo/ddt-vim@~1.2.0/types";
+import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.2.0/ui";
+import { printError, safeStat } from "jsr:@shougo/ddt-vim@~1.2.0/utils";
 
-import type { Denops } from "jsr:@denops/std@~7.5.0";
-import * as fn from "jsr:@denops/std@~7.5.0/function";
-import * as vars from "jsr:@denops/std@~7.5.0/variable";
-import * as nvimOp from "jsr:@denops/std@~7.5.0/option/nvim";
-import { batch } from "jsr:@denops/std@~7.5.0/batch";
+import type { Denops } from "jsr:@denops/std@~7.6.0";
+import * as fn from "jsr:@denops/std@~7.6.0/function";
+import * as vars from "jsr:@denops/std@~7.6.0/variable";
+import * as nvimOp from "jsr:@denops/std@~7.6.0/option/nvim";
+import { batch } from "jsr:@denops/std@~7.6.0/batch";
 import {
   type RawString,
   rawString,
   useEval,
-} from "jsr:@denops/std@~7.5.0/eval";
+} from "jsr:@denops/std@~7.6.0/eval";
 
 export type Params = {
   command: string[];
@@ -304,6 +304,8 @@ export class Ui extends BaseUi<Params> {
 
     await denops.call("ddt#ui#terminal#_split", params);
 
+    const cwd = params.cwd === "" ? await fn.getcwd(denops) : params.cwd;
+
     if (denops.meta.host === "nvim") {
       // NOTE: ":terminal" replaces current buffer
       await denops.cmd("enew");
@@ -313,6 +315,7 @@ export class Ui extends BaseUi<Params> {
         await denops.call("jobstart", params.command, {
           ...params.extraTermOptions,
           term: true,
+          cwd,
         });
 
         this.#jobid = await nvimOp.channel.getLocal(denops);
@@ -320,6 +323,7 @@ export class Ui extends BaseUi<Params> {
       } else {
         await denops.call("termopen", params.command, {
           ...params.extraTermOptions,
+          cwd,
         });
 
         this.#jobid = await vars.b.get(denops, "terminal_job_id");
@@ -329,6 +333,7 @@ export class Ui extends BaseUi<Params> {
       this.#pid = await denops.call("term_start", params.command, {
         ...params.extraTermOptions,
         curwin: true,
+        cwd,
         term_kill: "kill",
       }) as number;
     }
