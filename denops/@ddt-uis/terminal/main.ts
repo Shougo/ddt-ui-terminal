@@ -1,8 +1,4 @@
-import type {
-  BaseParams,
-  DdtOptions,
-  UiOptions,
-} from "@shougo/ddt-vim/types";
+import type { BaseParams, DdtOptions, UiOptions } from "@shougo/ddt-vim/types";
 import { BaseUi, type UiActions } from "@shougo/ddt-vim/ui";
 import { printError, safeStat } from "@shougo/ddt-vim/utils";
 
@@ -11,11 +7,7 @@ import * as fn from "@denops/std/function";
 import * as vars from "@denops/std/variable";
 import * as nvimOp from "@denops/std/option/nvim";
 import { batch } from "@denops/std/batch";
-import {
-  type RawString,
-  rawString,
-  useEval,
-} from "@denops/std/eval";
+import { type RawString, rawString, useEval } from "@denops/std/eval";
 
 export type Params = {
   command: string[];
