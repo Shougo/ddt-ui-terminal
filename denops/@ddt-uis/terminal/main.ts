@@ -2,20 +2,20 @@ import type {
   BaseParams,
   DdtOptions,
   UiOptions,
-} from "jsr:@shougo/ddt-vim@~1.2.0/types";
-import { BaseUi, type UiActions } from "jsr:@shougo/ddt-vim@~1.2.0/ui";
-import { printError, safeStat } from "jsr:@shougo/ddt-vim@~1.2.0/utils";
+} from "@shougo/ddt-vim/types";
+import { BaseUi, type UiActions } from "@shougo/ddt-vim/ui";
+import { printError, safeStat } from "@shougo/ddt-vim/utils";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
-import * as fn from "jsr:@denops/std@~7.6.0/function";
-import * as vars from "jsr:@denops/std@~7.6.0/variable";
-import * as nvimOp from "jsr:@denops/std@~7.6.0/option/nvim";
-import { batch } from "jsr:@denops/std@~7.6.0/batch";
+import type { Denops } from "@denops/std";
+import * as fn from "@denops/std/function";
+import * as vars from "@denops/std/variable";
+import * as nvimOp from "@denops/std/option/nvim";
+import { batch } from "@denops/std/batch";
 import {
   type RawString,
   rawString,
   useEval,
-} from "jsr:@denops/std@~7.6.0/eval";
+} from "@denops/std/eval";
 
 export type Params = {
   command: string[];
