@@ -1,7 +1,7 @@
 {
   "name": "@shougo/ddt-ui-terminal",
   "exports": {
-    ".": "./terminal.ts"
+    ".": "./main.ts"
   },
   "publish": {
     "include": [
