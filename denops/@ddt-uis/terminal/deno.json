@@ -1,4 +1,13 @@
 {
+  "name": "@shougo/ddt-ui-terminal",
+  "exports": {
+    ".": "./terminal.ts"
+  },
+  "publish": {
+    "include": [
+      "**/*.ts"
+    ]
+  },
   "imports": {
     "@denops/std": "jsr:@denops/std@~7.6.0",
     "@shougo/ddt-vim": "jsr:@shougo/ddt-vim@~1.2.0"
