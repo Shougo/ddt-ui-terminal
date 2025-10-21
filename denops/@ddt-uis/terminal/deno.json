@@ -9,7 +9,7 @@
     ]
   },
   "imports": {
-    "@denops/std": "jsr:@denops/std@~7.6.0",
-    "@shougo/ddt-vim": "jsr:@shougo/ddt-vim@~1.2.0"
+    "@denops/std": "jsr:@denops/std@~8.1.1",
+    "@shougo/ddt-vim": "jsr:@shougo/ddt-vim@~2.0.0"
   }
 }
