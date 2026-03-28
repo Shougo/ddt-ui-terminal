@@ -32,6 +32,10 @@ type SendParams = {
   str: string;
 };
 
+type SetPrompt = {
+  str: string;
+};
+
 export class Ui extends BaseUi<Params> {
   #bufNr = -1;
   #jobid = -1;
@@ -252,6 +256,25 @@ export class Ui extends BaseUi<Params> {
           this.#bufNr,
           this.#jobid,
           rawString`${params.str}\<CR>`,
+        );
+
+        await termRedraw(args.denops, this.#bufNr);
+      },
+    },
+    setPrompt: {
+      description: "Set the string to prompt",
+      callback: async (args: {
+        denops: Denops;
+        options: DdtOptions;
+        actionParams: BaseParams;
+      }) => {
+        const params = args.actionParams as SetPrompt;
+
+        await jobSendString(
+          args.denops,
+          this.#bufNr,
+          this.#jobid,
+          rawString`${params.str}`,
         );
 
         await termRedraw(args.denops, this.#bufNr);
