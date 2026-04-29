@@ -87,13 +87,14 @@ export class Ui extends BaseUi<Params> {
       return "";
     }
 
-    const commandLine = await getCommandLine(
-      args.denops,
-      args.uiParams.promptPattern,
-    );
-
-    const col = await fn.col(args.denops, ".");
-    const mode = await fn.mode(args.denops);
+    // Batch RPCs: get command line, column and mode in one eval to reduce roundtrips.
+    const { commandLine, col, mode } = await useEval(args.denops, async (denops: Denops) => {
+      const currentLine = await fn.getline(denops, ".");
+      const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
+      const col = await fn.col(denops, ".");
+      const mode = await fn.mode(denops);
+      return { commandLine, col, mode } as { commandLine: string; col: number; mode: string };
+    });
 
     return commandLine.slice(0, mode == "n" ? col - 2 : col - 3);
   }
@@ -106,7 +107,8 @@ export class Ui extends BaseUi<Params> {
         options: DdtOptions;
         actionParams: BaseParams;
       }) => {
-        if (await fn.bufnr(args.denops, "%") != this.#bufNr) {
+        const curBuf = await fn.bufnr(args.denops, "%");
+        if (curBuf != this.#bufNr) {
           return;
         }
 
@@ -122,17 +124,21 @@ export class Ui extends BaseUi<Params> {
         options: DdtOptions;
         uiParams: Params;
       }) => {
+        const curBuf = await fn.bufnr(args.denops, "%");
         if (
           args.uiParams.promptPattern === "" ||
-          await fn.bufnr(args.denops, "%") != this.#bufNr
+          curBuf != this.#bufNr
         ) {
           return;
         }
 
-        const commandLine = await getCommandLine(
-          args.denops,
-          args.uiParams.promptPattern,
-        );
+        // Batch retrieval of command line
+        const { commandLine } = await useEval(args.denops, async (denops: Denops) => {
+          const currentLine = await fn.getline(denops, ".");
+          const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
+          return { commandLine } as { commandLine: string };
+        });
+
         await jobSendString(
           args.denops,
           this.#bufNr,
@@ -166,9 +172,10 @@ export class Ui extends BaseUi<Params> {
         uiParams: Params;
         actionParams: BaseParams;
       }) => {
+        const curBuf = await fn.bufnr(args.denops, "%");
         if (
           args.uiParams.promptPattern === "" ||
-          await fn.bufnr(args.denops, "%") != this.#bufNr
+          curBuf != this.#bufNr
         ) {
           return;
         }
@@ -187,17 +194,19 @@ export class Ui extends BaseUi<Params> {
         options: DdtOptions;
         uiParams: Params;
       }) => {
+        const curBuf = await fn.bufnr(args.denops, "%");
         if (
           args.uiParams.promptPattern === "" ||
-          await fn.bufnr(args.denops, "%") != this.#bufNr
+          curBuf != this.#bufNr
         ) {
           return;
         }
 
-        const commandLine = await getCommandLine(
-          args.denops,
-          args.uiParams.promptPattern,
-        );
+        const { commandLine } = await useEval(args.denops, async (denops: Denops) => {
+          const currentLine = await fn.getline(denops, ".");
+          const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
+          return { commandLine } as { commandLine: string };
+        });
         await jobSendString(
           args.denops,
           this.#bufNr,
@@ -214,9 +223,10 @@ export class Ui extends BaseUi<Params> {
         uiParams: Params;
         actionParams: BaseParams;
       }) => {
+        const curBuf = await fn.bufnr(args.denops, "%");
         if (
           args.uiParams.promptPattern === "" ||
-          await fn.bufnr(args.denops, "%") != this.#bufNr
+          curBuf != this.#bufNr
         ) {
           return;
         }
@@ -235,7 +245,8 @@ export class Ui extends BaseUi<Params> {
         options: DdtOptions;
         uiParams: Params;
       }) => {
-        if (await fn.bufnr(args.denops, "%") != this.#bufNr) {
+        const curBuf = await fn.bufnr(args.denops, "%");
+        if (curBuf != this.#bufNr) {
           return;
         }
 
@@ -409,17 +420,18 @@ export class Ui extends BaseUi<Params> {
   }
 
   async #initVariables(denops: Denops, name: string, cwd: string) {
-    await vars.b.set(denops, "ddt_ui_name", name);
-
-    await vars.t.set(denops, "ddt_ui_last_bufnr", this.#bufNr);
-    await vars.t.set(denops, "ddt_ui_last_directory", cwd);
-    await vars.t.set(denops, "ddt_ui_terminal_last_name", name);
-
-    await vars.g.set(
-      denops,
-      "ddt_ui_last_winid",
-      await fn.win_getid(denops),
-    );
+    // Batch setting variables to reduce RPCs
+    await batch(denops, async (denops: Denops) => {
+      await vars.b.set(denops, "ddt_ui_name", name);
+      await vars.t.set(denops, "ddt_ui_last_bufnr", this.#bufNr);
+      await vars.t.set(denops, "ddt_ui_last_directory", cwd);
+      await vars.t.set(denops, "ddt_ui_terminal_last_name", name);
+      await vars.g.set(
+        denops,
+        "ddt_ui_last_winid",
+        await fn.win_getid(denops),
+      );
+    });
   }
 
   async #getCwd(denops: Denops, promptPattern: string): Promise<string> {
@@ -510,13 +522,14 @@ async function jobSendString(
   jobid: number,
   keys: RawString,
 ) {
+  // Use single eval to minimize RPCs and avoid blocking term_wait in Vim8 path.
   await useEval(denops, async (denops: Denops) => {
     if (denops.meta.host === "nvim") {
       await denops.call("chansend", jobid, keys);
     } else {
       await denops.call("term_sendkeys", bufNr, keys);
-      await termRedraw(denops, bufNr);
-      await denops.call("term_wait", bufNr);
+      // Do a lightweight redraw instead of blocking term_wait + redraw sequence.
+      await denops.cmd("redraw");
     }
   });
 }
@@ -525,27 +538,34 @@ async function termRedraw(
   denops: Denops,
   bufNr: number,
 ) {
-  if (denops.meta.host === "nvim") {
+  // Wrap whole sequence in useEval to reduce roundtrips.
+  await useEval(denops, async (denops: Denops) => {
+    if (denops.meta.host === "nvim") {
+      await denops.cmd("redraw");
+      return;
+    }
+
+    const ids = await fn.win_findbuf(denops, bufNr);
+    if (ids.length === 0) {
+      return;
+    }
+
+    const prevWinId = await fn.win_getid(denops);
+
+    await fn.win_gotoid(denops, ids[0]);
+
+    // Goto insert mode
     await denops.cmd("redraw");
-    return;
-  }
+    await denops.cmd("silent! normal! A");
 
-  // NOTE: In Vim8, auto redraw does not work!
-  const ids = await fn.win_findbuf(denops, bufNr);
-  if (ids.length === 0) {
-    return;
-  }
+    // Go back to normal mode
+    if (denops.meta.host === "nvim") {
+      await denops.cmd("stopinsert");
+    } else {
+      await denops.cmd("sleep 50m");
+      await fn.feedkeys(denops, rawString`\<C-\>\<C-n>`, "n");
+    }
 
-  const prevWinId = await fn.win_getid(denops);
-
-  await fn.win_gotoid(denops, ids[0]);
-
-  // Goto insert mode
-  await denops.cmd("redraw");
-  await denops.cmd("silent! normal! A");
-
-  // Go back to normal mode
-  await stopInsert(denops);
-
-  await fn.win_gotoid(denops, prevWinId);
+    await fn.win_gotoid(denops, prevWinId);
+  });
 }
