@@ -420,17 +420,18 @@ export class Ui extends BaseUi<Params> {
   }
 
   async #initVariables(denops: Denops, name: string, cwd: string) {
+    // Fetch win_getid before batch: inside batch the denops dispatcher queues
+    // calls without returning actual values, so any await here would yield
+    // undefined rather than the real window ID.
+    const winid = await fn.win_getid(denops);
+
     // Batch setting variables to reduce RPCs
     await batch(denops, async (denops: Denops) => {
       await vars.b.set(denops, "ddt_ui_name", name);
       await vars.t.set(denops, "ddt_ui_last_bufnr", this.#bufNr);
       await vars.t.set(denops, "ddt_ui_last_directory", cwd);
       await vars.t.set(denops, "ddt_ui_terminal_last_name", name);
-      await vars.g.set(
-        denops,
-        "ddt_ui_last_winid",
-        await fn.win_getid(denops),
-      );
+      await vars.g.set(denops, "ddt_ui_last_winid", winid);
     });
   }
 
@@ -558,13 +559,9 @@ async function termRedraw(
     await denops.cmd("redraw");
     await denops.cmd("silent! normal! A");
 
-    // Go back to normal mode
-    if (denops.meta.host === "nvim") {
-      await denops.cmd("stopinsert");
-    } else {
-      await denops.cmd("sleep 50m");
-      await fn.feedkeys(denops, rawString`\<C-\>\<C-n>`, "n");
-    }
+    // Go back to normal mode (Vim8 path only; feedkeys is needed here)
+    await denops.cmd("sleep 50m");
+    await fn.feedkeys(denops, rawString`\<C-\>\<C-n>`, "n");
 
     await fn.win_gotoid(denops, prevWinId);
   });
