@@ -88,13 +88,26 @@ export class Ui extends BaseUi<Params> {
     }
 
     // Batch RPCs: get command line, column and mode in one eval to reduce roundtrips.
-    const { commandLine, col, mode } = await useEval(args.denops, async (denops: Denops) => {
-      const currentLine = await fn.getline(denops, ".");
-      const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
-      const col = await fn.col(denops, ".");
-      const mode = await fn.mode(denops);
-      return { commandLine, col, mode } as { commandLine: string; col: number; mode: string };
-    });
+    const { commandLine, col, mode } = await useEval(
+      args.denops,
+      async (denops: Denops) => {
+        const currentLine = await fn.getline(denops, ".");
+        const commandLine = await fn.substitute(
+          denops,
+          currentLine,
+          args.uiParams.promptPattern,
+          "",
+          "",
+        );
+        const col = await fn.col(denops, ".");
+        const mode = await fn.mode(denops);
+        return { commandLine, col, mode } as {
+          commandLine: string;
+          col: number;
+          mode: string;
+        };
+      },
+    );
 
     return commandLine.slice(0, mode == "n" ? col - 2 : col - 3);
   }
@@ -133,11 +146,20 @@ export class Ui extends BaseUi<Params> {
         }
 
         // Batch retrieval of command line
-        const { commandLine } = await useEval(args.denops, async (denops: Denops) => {
-          const currentLine = await fn.getline(denops, ".");
-          const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
-          return { commandLine } as { commandLine: string };
-        });
+        const { commandLine } = await useEval(
+          args.denops,
+          async (denops: Denops) => {
+            const currentLine = await fn.getline(denops, ".");
+            const commandLine = await fn.substitute(
+              denops,
+              currentLine,
+              args.uiParams.promptPattern,
+              "",
+              "",
+            );
+            return { commandLine } as { commandLine: string };
+          },
+        );
 
         await jobSendString(
           args.denops,
@@ -202,11 +224,20 @@ export class Ui extends BaseUi<Params> {
           return;
         }
 
-        const { commandLine } = await useEval(args.denops, async (denops: Denops) => {
-          const currentLine = await fn.getline(denops, ".");
-          const commandLine = await fn.substitute(denops, currentLine, args.uiParams.promptPattern, "", "");
-          return { commandLine } as { commandLine: string };
-        });
+        const { commandLine } = await useEval(
+          args.denops,
+          async (denops: Denops) => {
+            const currentLine = await fn.getline(denops, ".");
+            const commandLine = await fn.substitute(
+              denops,
+              currentLine,
+              args.uiParams.promptPattern,
+              "",
+              "",
+            );
+            return { commandLine } as { commandLine: string };
+          },
+        );
         await jobSendString(
           args.denops,
           this.#bufNr,
