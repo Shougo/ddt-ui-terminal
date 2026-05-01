@@ -9,6 +9,16 @@ import * as nvimOp from "@denops/std/option/nvim";
 import { batch } from "@denops/std/batch";
 import { type RawString, rawString, useEval } from "@denops/std/eval";
 
+// Debounce delay for Vim8 terminal redraws (ms).
+// Collapsing rapid successive redraws (e.g. sending many lines quickly) into a
+// single update avoids UI stalls without introducing noticeable lag.
+const TERM_REDRAW_DEBOUNCE_DELAY = 75;
+
+// Per-buffer pending debounce timer IDs (Vim8 path only).
+// Entries are removed when the timer fires, so the map stays small and
+// does not require explicit cleanup on buffer close.
+const termRedrawTimers = new Map<number, number>();
+
 export type Params = {
   command: string[];
   cwd: string;
@@ -567,6 +577,38 @@ async function jobSendString(
 }
 
 async function termRedraw(
+  denops: Denops,
+  bufNr: number,
+) {
+  // Neovim performs efficient redraws natively; keep it immediate for best
+  // responsiveness and unchanged behaviour.
+  if (denops.meta.host === "nvim") {
+    await doTermRedraw(denops, bufNr);
+    return;
+  }
+
+  // Vim8: debounce redraws so that rapid successive calls (e.g. sending
+  // multiple lines within a short burst) result in only a single redraw,
+  // preventing UI stalls.  Clear any already-pending timer, then schedule
+  // a fresh one; only the last call within the window actually redraws.
+  const existing = termRedrawTimers.get(bufNr);
+  if (existing !== undefined) {
+    clearTimeout(existing);
+  }
+  const timerId = setTimeout(async () => {
+    termRedrawTimers.delete(bufNr);
+    try {
+      await doTermRedraw(denops, bufNr);
+    } catch {
+      // Ignore errors from deferred redraws (e.g. buffer closed between
+      // scheduling and execution); doTermRedraw already guards against
+      // missing windows via win_findbuf.
+    }
+  }, TERM_REDRAW_DEBOUNCE_DELAY) as unknown as number;
+  termRedrawTimers.set(bufNr, timerId);
+}
+
+async function doTermRedraw(
   denops: Denops,
   bufNr: number,
 ) {
