@@ -38,48 +38,48 @@ INTERFACE                                          *ddt-ui-terminal-interface*
 ------------------------------------------------------------------------------
 ACTIONS                                              *ddt-ui-terminal-actions*
 
-                                                   *ddu-ui-terminal-action-cd*
+                                                   *ddt-ui-terminal-action-cd*
 cd
 		params:
 			{directory}: New current directory.
 
 		Change current directory to {directory}.
 
-                                          *ddu-ui-terminal-action-executeLine*
+                                          *ddt-ui-terminal-action-executeLine*
 executeLine
 		Execute the command line.
 
-                                               *ddu-ui-terminal-action-insert*
+                                               *ddt-ui-terminal-action-insert*
 insert
 		params:
 			{str}: Target string.
 
 		Insert {str} to the process.
 
-                                           *ddu-ui-terminal-action-nextPrompt*
+                                           *ddt-ui-terminal-action-nextPrompt*
 nextPrompt
 		Move to the next prompt from cursor.
 
-                                          *ddu-ui-terminal-action-pastePrompt*
+                                          *ddt-ui-terminal-action-pastePrompt*
 pastePrompt
 		Paste the history to the command line.
 
-                                       *ddu-ui-terminal-action-previousPrompt*
+                                       *ddt-ui-terminal-action-previousPrompt*
 previousPrompt
 		Move to the previous prompt from cursor.
 
-                                               *ddu-ui-terminal-action-redraw*
+                                               *ddt-ui-terminal-action-redraw*
 redraw
 		Redraw the UI.
 
-                                                 *ddu-ui-terminal-action-send*
+                                                 *ddt-ui-terminal-action-send*
 send
 		params:
 			{str}: Target string.
 
 		Send {str} to the process and execute.
 
-                                            *ddu-ui-terminal-action-setPrompt*
+                                            *ddt-ui-terminal-action-setPrompt*
 setPrompt
 		params:
 			{str}: Target string.
