@@ -378,24 +378,14 @@ export class Ui extends BaseUi<Params> {
       await denops.cmd("enew");
 
       // NOTE: termopen() is deprecated in Neovim 0.11+.
-      if (await fn.has(denops, "nvim-0.11")) {
-        await denops.call("jobstart", params.command, {
-          ...params.extraTermOptions,
-          term: true,
-          cwd,
-        });
+      await denops.call("jobstart", params.command, {
+        ...params.extraTermOptions,
+        term: true,
+        cwd,
+      });
 
-        this.#jobid = await nvimOp.channel.getLocal(denops);
-        this.#pid = await denops.call("jobpid", this.#jobid) as number;
-      } else {
-        await denops.call("termopen", params.command, {
-          ...params.extraTermOptions,
-          cwd,
-        });
-
-        this.#jobid = await vars.b.get(denops, "terminal_job_id");
-        this.#pid = await vars.b.get(denops, "terminal_job_pid");
-      }
+      this.#jobid = await nvimOp.channel.getLocal(denops);
+      this.#pid = await denops.call("jobpid", this.#jobid) as number;
     } else {
       this.#pid = await denops.call("term_start", params.command, {
         ...params.extraTermOptions,
@@ -469,9 +459,12 @@ export class Ui extends BaseUi<Params> {
     // Batch setting variables to reduce RPCs
     await batch(denops, async (denops: Denops) => {
       await vars.b.set(denops, "ddt_ui_name", name);
+
+      await vars.t.set(denops, "ddt_ui_name", name);
       await vars.t.set(denops, "ddt_ui_last_bufnr", this.#bufNr);
       await vars.t.set(denops, "ddt_ui_last_directory", cwd);
       await vars.t.set(denops, "ddt_ui_terminal_last_name", name);
+
       await vars.g.set(denops, "ddt_ui_last_winid", winid);
     });
   }
