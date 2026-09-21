@@ -313,8 +313,8 @@ export class Ui extends BaseUi<Params> {
         await termRedraw(args.denops, this.#bufNr);
       },
     },
-    setPrompt: {
-      description: "Set the string to prompt",
+    setCommandLine: {
+      description: "Set the command line string",
       callback: async (args: {
         denops: Denops;
         options: DdtOptions;

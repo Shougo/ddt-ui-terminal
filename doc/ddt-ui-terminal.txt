@@ -79,12 +79,12 @@ send
 
 		Send {str} to the process and execute.
 
-                                            *ddt-ui-terminal-action-setPrompt*
-setPrompt
+                                       *ddt-ui-terminal-action-setCommandLine*
+setCommandLine
 		params:
 			{str}: Target string.
 
-		Send {str} to the prompt.
+		Send {str} to the process.
 
 ------------------------------------------------------------------------------
 PARAMS                                                *ddt-ui-terminal-params*
@@ -214,6 +214,9 @@ FREQUENTLY ASKED QUESTIONS (FAQ)                         *ddt-ui-terminal-faq*
 
 ==============================================================================
 COMPATIBILITY                                  *ddt-ui-terminal-compatibility*
+
+2026.09.21
+* Rename "setPrompt" to "setCommandLine".
 
 2025.01.20
 * Remove ddt#ui#terminal#kill_editor().  Plase use ddt#ui#kill_editor()
