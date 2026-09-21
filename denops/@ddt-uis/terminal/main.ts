@@ -27,7 +27,6 @@ export type Params = {
   promptPattern: string;
   split: string;
   startInsert: boolean;
-  toggle: boolean;
   winCol: number;
   winHeight: number;
   winRow: number;
@@ -343,7 +342,6 @@ export class Ui extends BaseUi<Params> {
       promptPattern: "",
       split: "",
       startInsert: false,
-      toggle: false,
       winCol: 50,
       winHeight: 15,
       winRow: 20,

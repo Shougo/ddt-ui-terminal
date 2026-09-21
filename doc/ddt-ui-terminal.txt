@@ -25,9 +25,9 @@ This UI is terminal UI.
 ==============================================================================
 INSTALL                                              *ddt-ui-terminal-install*
 
-Please install both "ddu.vim" and "denops.vim".
+Please install both "ddt.vim" and "denops.vim".
 
-https://github.com/Shougo/ddu.vim
+https://github.com/Shougo/ddt.vim
 https://github.com/vim-denops/denops.vim
 
 
@@ -43,7 +43,10 @@ cd
 		params:
 			{directory}: New current directory.
 
-		Change current directory to {directory}.
+		Send a shell command to change the terminal process directory
+		to {directory}.
+
+		NOTE: This does not change Vim/Neovim's current directory.
 
                                           *ddt-ui-terminal-action-executeLine*
 executeLine
@@ -54,7 +57,7 @@ insert
 		params:
 			{str}: Target string.
 
-		Insert {str} to the process.
+		Insert {str} to the process without it.
 
                                            *ddt-ui-terminal-action-nextPrompt*
 nextPrompt
@@ -77,67 +80,92 @@ send
 		params:
 			{str}: Target string.
 
-		Send {str} to the process and execute.
+		Send {str} to the process and press <CR>.
 
                                        *ddt-ui-terminal-action-setCommandLine*
 setCommandLine
 		params:
 			{str}: Target string.
 
-		Send {str} to the process.
+		Send {str} to the terminal process without pressing <CR>.
 
 ------------------------------------------------------------------------------
 PARAMS                                                *ddt-ui-terminal-params*
 
                                                *ddt-ui-terminal-param-command*
 command		string[]
-		Shell command and args to launch.
+		Shell command and arguments to launch.
+
+		Required to create a terminal buffer.
+		An empty value causes an error.
 
 		Default: []
 
                                                    *ddt-ui-terminal-param-cwd*
 cwd		string
-		Current directory.
+		The initial working directory of the terminal process.
 
-		Default: Use |getcwd()| value
+		If empty, the current Vim/Neovim directory is used.
 
                                       *ddt-ui-terminal-param-extraTermOptions*
 extraTermOptions Record<string, unknown>
-		Set the extra options for terminal API.
+		Additional options passed to the terminal API.
+
+		In Neovim, these options are passed to |jobstart()|.
+		In Vim, these options are passed to |term_start()|.
 
 		Default: {}
 
+                                      *ddt-ui-terminal-param-floatingBorder*
+floatingBorder	string
+		Set the border style of the floating window.
+
+		This parameter is used when |ddt-ui-terminal-param-split|
+		is "floating" in Neovim.
+
+		Default: ""
                                          *ddt-ui-terminal-param-promptPattern*
-promptPattern	string
-		Sets the pattern which matches the shell prompt.
+		Sets the Vim script regular expression used to identify
+		the shell prompt.
+
 		NOTE: The right prompt is not supported.
+		NOTE: If empty, prompt-related actions such as
+		|ddt-ui-terminal-action-executeLine| and prompt navigation
+		are unavailable.
 
 		Default: ""
                                                  *ddt-ui-terminal-param-split*
 split
 		Specify the split direction.
 
-		"": No split
-		"floating": Use Neovim floating window feature
-		"vertical": Split buffer vertically
-		"farleft": Split buffer far left, like |CTRL-W_H|
-		"farright": Split buffer far right, like |CTRL-W_L|
-		otherwise: Split buffer horizontally
+		"":
+			No split
+		"floating":
+			Use Neovim floating window feature
+			NOTE: In Vim, "floating" falls back to a horizontal
+			split.
+		"vertical":
+			Split buffer vertically
+		"farleft":
+			Split buffer far left, like |CTRL-W_H|
+		"farright":
+			Split buffer far right, like |CTRL-W_L|
+		otherwise:
+			Split buffer horizontally
 
 		Default: ""
 
                                            *ddt-ui-terminal-param-startInsert*
 startInsert	boolean
-		Start the insert mode.
-		NOTE: In Vim, the option is ignored if new terminal buffer is
-		created.
+		Start insert mode in Neovim.
+		NOTE: In Vim, a newly created terminal buffer is always started
+		in insert mode.
 
-		Default: v:true
+		Default: v:false
 
                                                 *ddt-ui-terminal-param-winCol*
 winCol		number
-		Set the column position of the window if
-		|ddt-ui-terminal-param-split| is "floating".
+		Set the 0-based column of the floating window.
 
 		Default: 50
 
@@ -150,8 +178,7 @@ winHeight	number
 
                                                 *ddt-ui-terminal-param-winRow*
 winRow		number
-		Set the row position of the window if
-		|ddt-ui-terminal-param-split| is "floating".
+		Set the 0-based row of the floating window.
 
 		Default: 20
 
@@ -167,7 +194,7 @@ winWidth	number
 ------------------------------------------------------------------------------
 VARIABLES                                          *ddt-ui-terminal-variables*
 
-                           *ddt-ui-terminal-variable-t:ddt_ui_shell_last_name*
+                        *ddt-ui-terminal-variable-t:ddt_ui_terminal_last_name*
 t:ddt_ui_terminal_last_name (string)
 		The last UI |ddt-option-name| in current tab.
 
@@ -196,15 +223,11 @@ EXAMPLES                                            *ddt-ui-terminal-examples*
 	
 	augroup ddt-ui-terminal
 	  autocmd!
-	  autocmd MyAutoCmd DirChanged <buffer>
+	  autocmd DirChanged <buffer>
 	        \ call ddt#ui#do_action('cd', #{
 	        \   directory: v:event->get('cwd', getcwd()),
 	        \ })
 	augroup END
-	
-	if exists('b:ddt_terminal_directory')
-	  execute 'tcd' b:ddt_terminal_directory->fnameescape()
-	endif
 <
 
 ==============================================================================
